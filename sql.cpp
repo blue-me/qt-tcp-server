@@ -77,6 +77,7 @@ bool passwordIsRight(char* userName,char* userPassword,MYSQL mysql){
 		res = mysql_store_result(&mysql);
 		if(nullptr == res){
 			cout<<"passwordIsRight failed: "<<mysql_errno(&mysql)<<endl;
+			mysql_free_result(res);
 		}
 		else{
 				cout<<"passwordIsRight success"<<endl;
@@ -87,7 +88,6 @@ bool passwordIsRight(char* userName,char* userPassword,MYSQL mysql){
 				if(take == cmp) return true;
 		}
 	}
-	mysql_free_result(res);
 	return false;
 }
 

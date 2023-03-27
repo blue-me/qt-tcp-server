@@ -1,29 +1,40 @@
 #include <stdio.h>
 #include <sys/types.h>
-//#include <arpa/inet.h>
-//#include <sys/socket.h>
 #include <errno.h>
 #include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
-//#include <netinet/in.h>
 #include <ctype.h>
-//#include <winsock.h>
-#include <winsock2.h>
-#include <windows.h>
 #include <pthread.h>
-#include "mysql.h"
 
+
+
+#ifdef _WIN64
+//	#pragma comment(lib, "ws2_32.lib") 
+//	#pragma comment(lib, "wsock32.lib")
+//	#define WIN32_LEAN_AND_MEAN
+	#include <winsock2.h>	
+	//self computer ip address 
+	#define IP_ADDR "127.0.0.1"
+	//#include <windows.h>
+#elif __linux__
+	#include <arpa/inet.h>
+	#include <sys/socket.h>
+	#include <netinet/in.h>
+	//wireless hotspot ip address
+	#define IP_ADDR "192.168.4.1"
+
+#else
+#endif
+
+#include "mysql.h"
 #include "interaction.h"
 #include "oneIO.h"
 
-#pragma comment(lib, "ws2_32.lib") 
-#pragma comment(lib, "wsock32.lib")
-
 #define MAXSIZE 1024
-#define IP_ADDR "127.0.0.1"
+
 #define IP_PORT 8888
-#define MY_ADDR "172.17.0.2"
+//#define MY_ADDR "172.17.0.2"
 //extern int usedIO = 0;
 
 int main()
@@ -32,7 +43,8 @@ int main()
 		MYSQL mysql;
 		mysql_init(&mysql);
 		
-		if(!mysql_real_connect(&mysql,"localhost","root","CHENHAOJUNchj123","qianrushi",3306,nullptr,0)){
+		//详情请查看mysql_real_connect()接口说明，主机，主机用户名，密码，数据库名称，接口 
+		if(!mysql_real_connect(&mysql,"xxxxxxxxx","xxxx","xxxxxxxxxxxxxxxx","xxxxxxxxx",3306,nullptr,0)){
 			printf("The database connection failed.\n");
 			return -1;
 		}
@@ -40,13 +52,16 @@ int main()
 			printf("The database connection success.\n");
 			
 		//服务器开启侦听端口 
+#ifdef _WIN64
 		WORD sockVersion = MAKEWORD(2,2);
 		WSADATA wsaData;  
+		printf("Main function in WIN64\n");
     	if(WSAStartup(sockVersion, &wsaData)!=0)  
     	{  
         	return 0;  
     	}  
-    	
+#else
+#endif   	
         SOCKET i_listenfd,i_connfd;
         struct sockaddr_in my_sersock;
         char msg[MAXSIZE];
@@ -110,6 +125,7 @@ int main()
 				user = (OneIO*)malloc(sizeof(OneIO));
 	        	user->mysql =mysql;
 	        	user->i_connfd = i_connfd;
+	        	//创建新的线程 
 	        	pthread_create(&tid,NULL,workPart,(void*)user);
 	        	pthread_detach(tid);
         	}

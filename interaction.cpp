@@ -1,23 +1,31 @@
 #include <stdio.h>
 #include <sys/types.h>
-//#include <arpa/inet.h>
-//#include <sys/socket.h>
 #include <errno.h>
 #include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
-//#include <netinet/in.h>
 #include <ctype.h>
+
 //#include <winsock.h>
-#include <winsock2.h>
-#include <windows.h>
-#pragma comment(lib, "ws2_32.lib") 
-#pragma comment(lib, "wsock32.lib")
+#ifdef _WIN64
+//	#define WIN32_LEAN_AND_MEAN
+	#include <winsock2.h>
+//	#include <windows.h>
+#elif __linux__
+	#include <arpa/inet.h>
+	#include <sys/socket.h>
+	#include <netinet/in.h>
+#else
+#endif	
+
+//#pragma comment(lib, "ws2_32.lib") 
+//#pragma comment(lib, "wsock32.lib")
 
 #include "interaction.h"
 #include "message.h"
 #include "sql.h"
 #include "oneIO.h"
+
 #define INTER_MAXSIZE 1024
 
 int usedIO = 0;
